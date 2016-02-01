@@ -1,2 +1,2 @@
 # aws-bootstrap
-Bootstrap an application on AWS with HAProxy, Ninx, Java application and Postgres Database
+Bootstrap an application on AWS with HAProxy, Nginx, Java application and Postgres Database
