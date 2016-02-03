@@ -1,5 +1,5 @@
 # aws-bootstrap
-Bootstrap an application on AWS with:
+Bootstrap an example application on AWS with:
 * Elastic Load Balancer
 * CloudFront
 * Java application on EC2
