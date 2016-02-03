@@ -5,7 +5,7 @@ Bootstrap an application on AWS with:
 * Java application on EC2
 * Postgres Database on RDS.
 
-The infrastrukturen will be provisioned with:
+The infrastructure will be provisioned with:
 * Packer
 * Terraform
 * Ansible
