@@ -1,0 +1,11 @@
+secrets.sh
+terraform/*/terraform.tfstate
+terraform/*/terraform.tfstate.backup
+packer/*/packer_cache/
+terraform/.terraform
+helloworld-java-app/target
+helloworld-java-app/.classpath
+helloworld-java-app/.project
+helloworld-java-app/.settings/
+helloworld-java-app/*.iml
+helloworld-java-app/.idea
