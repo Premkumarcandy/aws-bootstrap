@@ -1,4 +1,4 @@
-.PHONY: all plan apply destroy
+.PHONY: all plan apply destroy graph
 
 all: plan apply
 
@@ -11,3 +11,6 @@ apply:
 destroy:
 	terraform plan -destroy -var-file terraform.tfvars -out terraform.tfplan
 	terraform apply terraform.tfplan
+graph:
+	terraform graph | dot -Tpng > graph.png
+
