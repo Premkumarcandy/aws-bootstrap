@@ -214,7 +214,7 @@ resource "aws_security_group" "allow_bastion" {
     self = false
   }
   tags = {
-    Name = "bastion SG"
+    Name = "allow bastion SG"
   }
 }
 
