@@ -97,6 +97,9 @@ resource "aws_route_table" "public-route-table" {
     cidr_block = "0.0.0.0/0"
     gateway_id = "${aws_internet_gateway.gateway.id}"
   }
+  tags {
+      Name = "Public RT"
+  }
 }
 
 resource "aws_route_table_association" "public-subnet" {
@@ -124,7 +127,7 @@ resource "aws_route_table" "private-route-table" {
     instance_id = "${aws_instance.nat.id}"
   }
   tags {
-      Name = "Private Subnet"
+    Name = "Private RT"
   }
 }
 
@@ -146,7 +149,9 @@ resource "aws_security_group" "bastion" {
   name      = "bastion"
   vpc_id      = "${aws_vpc.vpc.id}"
   description = "Bastion security group"
-  tags      { Name = "bastion" }
+  tags {
+    Name = "bastion SG"
+  }
 
   ingress {
     protocol    = "tcp"
@@ -193,21 +198,24 @@ resource "aws_instance" "bastion" {
 }
 
 resource "aws_security_group" "allow_bastion" {
-    name = "allow_bastion_ssh"
-    description = "Allow access from bastion host"
-    vpc_id = "${aws_vpc.vpc.id}"
-    ingress {
-      from_port = 0
-      to_port = 65535
-      protocol = "tcp"
-      security_groups = [
-            "${aws_security_group.bastion.id}",
-            "${aws_security_group.nat.id}",
-            "${aws_security_group.elb.id}",
-            "${aws_security_group.app.id}" 
-      ]
-      self = false
-    }
+  name = "allow_bastion_ssh"
+  description = "Allow access from bastion host"
+  vpc_id = "${aws_vpc.vpc.id}"
+  ingress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    security_groups = [
+      "${aws_security_group.bastion.id}",
+      "${aws_security_group.nat.id}",
+      "${aws_security_group.elb.id}",
+      "${aws_security_group.app.id}" 
+    ]
+    self = false
+  }
+  tags = {
+    Name = "bastion SG"
+  }
 }
 
 resource "aws_eip" "bastion" {
@@ -261,7 +269,9 @@ resource "aws_security_group" "elb" {
   vpc_id = "${aws_vpc.vpc.id}"
   description = "Security group for App ELB"
 
-  tags      { Name = "app-elb" }
+  tags = {
+    Name = "elb SG"
+  }
 
   ingress {
     protocol    = "tcp"
@@ -301,6 +311,12 @@ resource "aws_elb" "blue" {
   subnets = ["${aws_subnet.public-subnet.id}"]
   security_groups = ["${aws_security_group.elb.id}"]
 
+  tags = {
+    Name = "elb blue"
+    subnet = "public-subnet"
+    role = "load balancer"
+  }
+
   listener {
     lb_port         = 80
     lb_protocol       = "http"
@@ -325,6 +341,12 @@ resource "aws_elb" "green" {
   subnets = ["${aws_subnet.public-subnet.id}"]
   security_groups = ["${aws_security_group.elb.id}"]
 
+  tags = {
+    Name = "elb green"
+    subnet = "public-subnet"
+    role = "load balancer"
+  }
+
   listener {
     lb_port         = 80
     lb_protocol       = "http"
@@ -346,7 +368,9 @@ resource "aws_security_group" "app" {
   vpc_id = "${aws_vpc.vpc.id}"
   description = "Security group for App"
 
-  tags      { Name = "app" }
+  tags = {
+    Name = "app SG"
+  }
 
   ingress {
     protocol    = "tcp"
@@ -388,24 +412,24 @@ resource "aws_security_group" "app" {
 # Apps
 
 resource "aws_instance" "app" {
-      ami = "${var.aws_ubuntu_ami}"
-      availability_zone = "${var.availability_zone}"
-      instance_type = "${var.instance_type}"
-      security_groups = ["${aws_security_group.app.id}"]
-      subnet_id = "${aws_subnet.private-subnet.id}"
-      connection {
-        user = "ubuntu"
-      }
-      key_name = "${aws_key_pair.auth.id}"
-      tags = {
-        Name = "app"
-        subnet = "public-subnet"
-        role = "app"
-      }
+  ami = "${var.aws_ubuntu_ami}"
+  availability_zone = "${var.availability_zone}"
+  instance_type = "${var.instance_type}"
+  security_groups = ["${aws_security_group.app.id}"]
+  subnet_id = "${aws_subnet.private-subnet.id}"
+  connection {
+    user = "ubuntu"
+  }
+  key_name = "${aws_key_pair.auth.id}"
+  tags = {
+    Name = "app"
+    subnet = "public-subnet"
+    role = "app"
+  }
 }
 
 resource "aws_eip" "app" {
-      instance = "${aws_instance.app.id}"
-      vpc = true
+  instance = "${aws_instance.app.id}"
+  vpc = true
 }
 
